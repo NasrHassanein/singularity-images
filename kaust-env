@@ -1,0 +1,22 @@
+Bootstrap: docker
+From: centos:latest
+
+
+%post
+	echo "Installing Development Tools"
+	yum -y groupinstall "Development Tools"
+	echo "Configuring KAUST environment"
+    yum -y install environment-modules redhat-lsb
+	mkdir -p /opt/share /opt/source /opt/builds
+	cd /opt/share
+	git clone https://github.com/kaust-rc/modules-intel.git modules
+	cd modules
+    git rm --cached common
+	rm -rf common
+    git submodule add https://github.com/kaust-rc/modules-common.git common
+    cp common/local.sh /etc/profile.d/
+	
+
+%runscript
+	echo "Arguments received: $*"
+	exec "/bin/bash; module load $@; $@"
